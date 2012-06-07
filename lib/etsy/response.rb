@@ -20,7 +20,7 @@ module Etsy
     # Convert the raw JSON data to a hash
     def to_hash
       check_data!
-      @hash ||= JSON.parse(data)
+      @hash ||= json
     end
 
     # Number of records in the response results
@@ -43,17 +43,21 @@ module Etsy
       @raw_response.body
     end
 
+    def json
+      @hash ||= JSON.parse(data)
+    end
+
     def check_data!
       raise OAuthTokenRevoked if data == "oauth_problem=token_revoked"
       raise MissingShopID if data =~ /Shop with PK shop_id/
       raise InvalidUserID if data =~ /is not a valid user_id/
       raise TemporaryIssue if data =~ /Temporary Etsy issue|Resource temporarily unavailable|You have exceeded/
-      raise EtsyJSONInvalid.new(data) unless valid_json?(data)
+      raise EtsyJSONInvalid.new(data) unless valid_json?
       true
     end
 
-    def valid_json? json_
-      JSON.parse(json_)
+    def valid_json?
+      json
       return true
     rescue Exception => e
       return false
