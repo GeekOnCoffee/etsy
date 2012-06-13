@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<oauth>, ["~> 0.4.0"])
     end
   else
-    s.add_dependency(%q<json>, ["~> 1.5.0"])
+    s.add_dependency(%q<json>, ["~> 1.7"])
     s.add_dependency(%q<oauth>, ["~> 0.4.0"])
   end
 end
