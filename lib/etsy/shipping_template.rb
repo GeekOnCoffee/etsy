@@ -28,5 +28,9 @@ module Etsy
       }
       get("/users/#{user.id}/shipping/templates", options)
     end
+
+    def entries(credentials = {})
+      ::Etsy::ShippingTemplateEntry.find(result["shipping_template_id"], credentials)
+    end
   end
 end

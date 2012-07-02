@@ -23,7 +23,9 @@ require 'etsy/address'
 require 'etsy/category'
 require 'etsy/payment_template'
 require 'etsy/country'
+require 'etsy/region'
 require 'etsy/shipping_template'
+require 'etsy/shipping_template_entry'
 require 'etsy/shop_section'
 
 # = Etsy: A friendly Ruby interface to the Etsy API
