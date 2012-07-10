@@ -27,6 +27,7 @@ require 'etsy/region'
 require 'etsy/shipping_template'
 require 'etsy/shipping_template_entry'
 require 'etsy/shop_section'
+require 'etsy/section'
 
 # = Etsy: A friendly Ruby interface to the Etsy API
 #

@@ -18,13 +18,20 @@ module Etsy
       Response.new(request.post)
     end
 
+    def self.put(resource_path, parameters = {})
+      request = Request.new(resource_path, parameters)
+      Response.new(request.put)
+    end
+
     # Create a new request for the resource with optional parameters
     def initialize(resource_path, parameters = {})
+      parameters = parameters.dup
       @token = parameters.delete(:access_token) || Etsy.credentials[:access_token]
       @secret = parameters.delete(:access_secret) || Etsy.credentials[:access_secret]
       raise("Secure connection required. Please provide your OAuth credentials via :access_token and :access_secret in the parameters") if parameters.delete(:require_secure) && !secure?
+      @multipart_request = parameters.delete(:multipart)
       @resource_path = resource_path
-      @resources     = parameters.delete(:includes)
+      @resources = parameters.delete(:includes)
       if @resources.class == String
         @resources = @resources.split(',').map {|r| {:resource => r}}
       elsif @resources.class == Array
@@ -37,8 +44,7 @@ module Etsy
         end
       end
       parameters = parameters.merge(:api_key => Etsy.api_key) unless secure?
-      @parameters    = parameters
-      @parameters[:fields] = fields_from(@parameters[:fields]) if @parameters[:fields]
+      @parameters = parameters
     end
 
     def base_path # :nodoc:
@@ -52,7 +58,15 @@ module Etsy
     end
 
     def post
-      client.post(endpoint_url)
+      if multipart?
+        client.post_multipart(endpoint_url(:include_query => false), @parameters)
+      else
+        client.post(endpoint_url)
+      end
+    end
+
+    def put
+      client.put(endpoint_url)
     end
 
     def client # :nodoc:
@@ -68,28 +82,43 @@ module Etsy
     end
 
     def query # :nodoc:
-      q = parameters.map {|k,v| "#{URI.escape(k.to_s)}=#{URI.escape(v.to_s)}"}.join('&')
-      q << "&includes=#{URI.escape(resources.map {|r| association(r)}.join(','))}" if resources
-      q
+      to_url(parameters.merge(:includes => resources.to_a.map { |r| association(r) }))
+    end
+
+    def to_url(val)
+      if val.is_a? Array
+        to_url(val.join(','))
+      elsif val.is_a? Hash
+        val.reject { |k, v|
+          k.nil? || v.nil? || (k.respond_to?(:empty?) && k.empty?) || (v.respond_to?(:empty?) && v.empty?)
+        }.map { |k, v| "#{to_url(k.to_s)}=#{to_url(v)}" }.join('&')
+      else
+        URI.escape(val.to_s, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+      end
     end
 
     def association(options={}) # :nodoc:
-      s = options[:resource].capitalize
-      s << "(#{fields_from(options[:fields])})" if options[:fields]
-      if options[:limit] || options[:offset]
-        options[:limit] ||= 25
-        options[:offset] ||= 0
-        s << ":#{options[:limit]}:#{options[:offset]}"
+      s = options[:resource].dup
+
+      if options.include? :fields
+        s << "(#{[options[:fields]].flatten.join(',')})"
       end
+
+      if options.include?(:limit) || options.include?(:offset)
+        s << ":#{options.fetch(:limit, 25)}:#{options.fetch(:offset, 0)}"
+      end
+
       s
     end
 
-    def fields_from(fields)
-      fields.is_a?(Array) ? fields.join(',') : fields
+    def endpoint_url(options = {}) # :nodoc:
+      url = "#{base_path}#{@resource_path}"
+      url += "?#{query}" if options.fetch(:include_query, true)
+      url
     end
 
-    def endpoint_url # :nodoc:
-      "#{base_path}#{@resource_path}?#{query}"
+    def multipart?
+      !!@multipart_request
     end
 
     private

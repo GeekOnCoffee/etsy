@@ -32,8 +32,41 @@ module Etsy
       end
 
       def get_all(endpoint, options={})
-        response = Request.get(endpoint, options)
-        result = response.result || [] # result may be null
+        limit = options[:limit]
+
+        if limit
+          initial_offset = options.fetch(:offset, 0)
+          batch_size = options.fetch(:batch_size, 100)
+
+          result = []
+
+          if limit == :all
+            response = Request.get(endpoint, options.merge(:limit => batch_size, :offset => initial_offset))
+            result << response.result
+            limit = [response.count - batch_size - initial_offset, 0].max
+            initial_offset += batch_size
+          end
+
+          num_batches = limit / batch_size
+
+          num_batches.times do |batch|
+            total_offset = initial_offset + batch * batch_size
+            response = Request.get(endpoint, options.merge(:limit => batch_size, :offset => total_offset))
+            result << response.result
+          end
+
+          remainder = limit % batch_size
+
+          if remainder > 0
+            total_offset = initial_offset + num_batches * batch_size
+            response = Request.get(endpoint, options.merge(:limit => remainder, :offset => total_offset))
+            result << response.result
+          end
+        else
+          response = Request.get(endpoint, options)
+          result = response.result
+        end
+
         [result].flatten.map do |data|
           if options[:access_token] && options[:access_secret]
             new(data, options[:access_token], options[:access_secret])
@@ -45,6 +78,10 @@ module Etsy
 
       def post(endpoint, options={})
         Request.post(endpoint, options)
+      end
+
+      def put(endpoint, options={})
+        Request.put(endpoint, options)
       end
 
       def find_one_or_more(endpoint, identifiers_and_options)
@@ -82,6 +119,5 @@ module Etsy
     def self.included(other)
       other.extend ClassMethods
     end
-
   end
 end
