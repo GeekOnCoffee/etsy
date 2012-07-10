@@ -26,6 +26,7 @@ require 'etsy/country'
 require 'etsy/region'
 require 'etsy/shipping_template'
 require 'etsy/shipping_template_entry'
+require 'etsy/shipping_info'
 require 'etsy/shop_section'
 require 'etsy/section'
 

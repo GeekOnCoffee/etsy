@@ -18,15 +18,15 @@ module Etsy
     end
 
     def origin_country
-      ::Etsy::Country.find(origin_country_id)
+      origin_country_id ? ::Etsy::Country.find(origin_country_id) : nil
     end
 
     def destination_country
-      ::Etsy::Country.find(destination_country_id)
+      destination_country_id ? ::Etsy::Country.find(destination_country_id) : nil
     end
 
     def destination_region
-      ::Etsy::Region.find(destination_region_id)
+      destination_region_id ? ::Etsy::Region.find(destination_region_id) : nil
     end
   end
 end
