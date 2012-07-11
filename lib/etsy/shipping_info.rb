@@ -16,12 +16,7 @@ module Etsy
       get("/shipping/templates/#{id}", options)
     end
 
-    def self.find_by_listing(listing, credentials = {})
-      options = {
-        :access_token => credentials[:access_token],
-        :access_secret => credentials[:access_secret],
-        :require_secure => true
-      }
+    def self.find_by_listing(listing, options)
       get("/listings/#{listing.id}/shipping/info", options)
     end
 
