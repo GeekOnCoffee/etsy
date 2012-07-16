@@ -17,16 +17,5 @@ module Etsy
       get("/shipping/templates/#{shipping_template_id}/entries", options)
     end
 
-    def origin_country
-      origin_country_id ? ::Etsy::Country.find(origin_country_id) : nil
-    end
-
-    def destination_country
-      destination_country_id ? ::Etsy::Country.find(destination_country_id) : nil
-    end
-
-    def destination_region
-      destination_region_id ? ::Etsy::Region.find(destination_region_id) : nil
-    end
   end
 end

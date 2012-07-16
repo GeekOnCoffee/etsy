@@ -19,13 +19,5 @@ module Etsy
     def self.find_by_listing(listing, options)
       get("/listings/#{listing.id}/shipping/info", options)
     end
-
-    def origin_country
-      origin_country_id ? ::Etsy::Country.find(origin_country_id) : nil
-    end
-
-    def destination_country
-      destination_country_id ? ::Etsy::Country.find(destination_country_id) : nil
-    end
   end
 end

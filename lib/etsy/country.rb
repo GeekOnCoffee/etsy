@@ -6,12 +6,12 @@ module Etsy
     attributes :iso_country_code, :world_bank_country_code
     attributes :name, :slug, :lat, :lon
 
-    def self.find_all
-      get("/countries")
+    def self.find_all(options={})
+      get("/countries", options)
     end
 
-    def self.find(id)
-      get("/countries/#{id}")
+    def self.find(id, options={})
+      get("/countries/#{id}", options)
     end
 
     def self.find_by_alpha2(alpha2)

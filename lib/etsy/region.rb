@@ -5,12 +5,12 @@ module Etsy
     attribute :id, :from => :region_id
     attributes :region_name
 
-    def self.find_all
-      get("/regions")
+    def self.find_all(options)
+      get("/regions", options)
     end
 
-    def self.find(id)
-      get("/regions/#{id}")
+    def self.find(id, options)
+      get("/regions/#{id}", options)
     end
   end
 end
