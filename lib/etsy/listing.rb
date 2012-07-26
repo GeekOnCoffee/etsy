@@ -33,7 +33,7 @@ module Etsy
     include Etsy::Model
 
     STATES = %w(active removed sold_out expired alchemy)
-    VALID_STATES = [:active, :expired, :inactive, :sold, :featured]
+    VALID_STATES = [:active, :expired, :inactive, :sold, :featured, :sold_out]
 
     attribute :id, :from => :listing_id
     attribute :view_count, :from => :views
@@ -112,6 +112,10 @@ module Etsy
     def self.find_all_active_by_category(category, options = {})
       options[:category] = category
       get_all("/listings/active", options)
+    end
+
+    def self.find_all_for_receipt(receipt_id, options={})
+      get("/receipts/#{receipt_id}/listings", options)
     end
 
     # The collection of images associated with this listing.
