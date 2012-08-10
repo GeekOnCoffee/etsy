@@ -3,7 +3,7 @@ module Etsy
     include Etsy::Model
 
     attribute :id, :from => :shipping_info_id
-
+    attribute :destination_region_id, :from => :region_id
     attributes :origin_country_id, :destination_country_id, :listing_id, :region_id, :origin_country_name, :destination_country_name, :primary_cost, :secondary_cost
 
 
